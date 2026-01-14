@@ -1,0 +1,28 @@
+.navbar {
+  background: #333;
+  color: white;
+  padding: 16px 0;
+  margin-bottom: 32px;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar h1 {
+  font-size: 24px;
+}
+
+.navbar button {
+  background: #ff4444;
+  padding: 8px 16px;
+}
+
+.navbar button:hover {
+  background: #cc0000;
+}
