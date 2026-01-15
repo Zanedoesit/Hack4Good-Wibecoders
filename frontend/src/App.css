@@ -26,3 +26,21 @@
 .navbar button:hover {
   background: #cc0000;
 }
+
+.nav-links {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-links a {
+  background: #555;
+  color: white;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.nav-links a:hover {
+  background: #666;
+}

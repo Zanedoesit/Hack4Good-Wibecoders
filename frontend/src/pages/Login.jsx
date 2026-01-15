@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 const API_URL = 'http://localhost:5000'
 
@@ -50,6 +50,9 @@ export default function Login({ onLogin }) {
         </form>
         <p style={{ marginTop: '16px', fontSize: '14px' }}>
           Demo credentials: email@test.com / password123
+        </p>
+        <p style={{ marginTop: '8px', fontSize: '14px' }}>
+          Need an account? <Link to="/register">Create one</Link>
         </p>
       </div>
     </div>
