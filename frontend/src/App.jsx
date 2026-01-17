@@ -5,6 +5,8 @@ import Activities from './pages/Activities'
 import Signup from './pages/Signup'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import CreateActivity from './pages/CreateActivity'
+import Profile from './pages/Profile'
 import './App.css'
 
 function App() {
@@ -31,7 +33,17 @@ function App() {
         <div className="nav-container">
           <h1>MINDS Activity Signup</h1>
           {token ? (
-            <button onClick={handleLogout}>Logout</button>
+            <div className="nav-links">
+              {(userType === 'caregiver' || userType === 'staff') && <Link to="/activities">Activities</Link>}
+              {userType === 'caregiver' && <Link to="/profile">Profile</Link>}
+              {userType === 'staff' && (
+                <>
+                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/activities/new">New Activity</Link>
+                </>
+              )}
+              <button onClick={handleLogout}>Logout</button>
+            </div>
           ) : (
             <div className="nav-links">
               <Link to="/login">Login</Link>
@@ -45,15 +57,23 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route
           path="/activities"
-          element={token && userType === 'caregiver' ? <Activities token={token} /> : <Navigate to="/login" />}
+          element={token ? <Activities token={token} userType={userType} /> : <Navigate to="/login" />}
         />
         <Route
           path="/signup/:id"
           element={token && userType === 'caregiver' ? <Signup token={token} /> : <Navigate to="/login" />}
         />
         <Route
+          path="/profile"
+          element={token && userType === 'caregiver' ? <Profile token={token} /> : <Navigate to="/login" />}
+        />
+        <Route
           path="/dashboard"
           element={token && userType === 'staff' ? <Dashboard token={token} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/activities/new"
+          element={token && userType === 'staff' ? <CreateActivity token={token} /> : <Navigate to="/login" />}
         />
         <Route path="/" element={token ? <Navigate to={userType === 'caregiver' ? '/activities' : '/dashboard'} /> : <Navigate to="/login" />} />
       </Routes>

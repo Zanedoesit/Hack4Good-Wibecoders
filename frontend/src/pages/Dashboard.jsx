@@ -35,7 +35,25 @@ export default function Dashboard({ token }) {
           <div key={activity.activity_id} className="card">
             <h3>{activity.title}</h3>
             <p><strong>Date:</strong> {activity.date} at {activity.time}</p>
-            <p><strong>Total Signups:</strong> {activity.signup_count}</p>
+            <p><strong>Total Signups:</strong> {activity.signup_count} / {activity.capacity}</p>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+              {activity.capacity - activity.signup_count > 0 ? (
+                <span className="badge badge-open">Open</span>
+              ) : (
+                <span className="badge badge-full">Full</span>
+              )}
+              <span className="badge badge-muted">
+                {activity.capacity - activity.signup_count} spots left
+              </span>
+            </div>
+            <div className="progress" style={{ marginBottom: '12px' }}>
+              <div
+                className="progress-bar"
+                style={{
+                  width: `${Math.min(100, Math.round((activity.signup_count / Math.max(activity.capacity, 1)) * 100))}%`
+                }}
+              />
+            </div>
             <h4>Registered:</h4>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>

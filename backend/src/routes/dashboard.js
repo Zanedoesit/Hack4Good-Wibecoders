@@ -1,10 +1,10 @@
 const express = require('express');
 const { pool } = require('../db');
-const authMiddleware = require('../middleware/auth');
+const { authMiddleware, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/signups', authMiddleware, async (req, res) => {
+router.get('/signups', authMiddleware, requireRole('staff'), async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
@@ -12,7 +12,8 @@ router.get('/signups', authMiddleware, async (req, res) => {
         a.title,
         a.date,
         a.time,
-        COUNT(s.id) as signup_count,
+        a.capacity,
+        COUNT(s.id)::int as signup_count,
         json_agg(
           json_build_object(
             'individual_id', i.id,
@@ -20,12 +21,12 @@ router.get('/signups', authMiddleware, async (req, res) => {
             'caregiver_name', u.name,
             'caregiver_email', u.email
           )
-        ) as individuals
+        ) FILTER (WHERE i.id IS NOT NULL) as individuals
       FROM activities a
       LEFT JOIN signups s ON a.id = s.activity_id
       LEFT JOIN individuals i ON s.individual_id = i.id
       LEFT JOIN users u ON s.caregiver_id = u.id
-      GROUP BY a.id, a.title, a.date, a.time
+      GROUP BY a.id, a.title, a.date, a.time, a.capacity
       ORDER BY a.date ASC
     `);
     res.json(result.rows);

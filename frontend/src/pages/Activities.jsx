@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 const API_URL = 'http://localhost:5000'
 
-export default function Activities({ token }) {
+export default function Activities({ token, userType }) {
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
@@ -40,9 +40,33 @@ export default function Activities({ token }) {
             <p><strong>Date:</strong> {activity.date} at {activity.time}</p>
             <p><strong>Location:</strong> {activity.location}</p>
             <p><strong>Spots Available:</strong> {activity.spots_left} / {activity.capacity}</p>
-            <button onClick={() => navigate(`/signup/${activity.id}`)}>
-              Register
-            </button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+              {activity.spots_left > 0 ? (
+                <span className="badge badge-open">Open</span>
+              ) : (
+                <span className="badge badge-full">Full</span>
+              )}
+              {activity.caregiver_signup_count > 0 && (
+                <span className="badge badge-muted">Already registered</span>
+              )}
+            </div>
+            <div className="progress">
+              <div
+                className="progress-bar"
+                style={{
+                  width: `${Math.min(100, Math.round((activity.signup_count / Math.max(activity.capacity, 1)) * 100))}%`
+                }}
+              />
+            </div>
+            {userType === 'caregiver' && (
+              <button
+                onClick={() => navigate(`/signup/${activity.id}`)}
+                disabled={activity.spots_left <= 0}
+                style={{ marginTop: '12px' }}
+              >
+                {activity.spots_left <= 0 ? 'Full' : 'Register'}
+              </button>
+            )}
           </div>
         ))
       )}

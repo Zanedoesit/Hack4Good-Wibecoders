@@ -13,4 +13,14 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+const requireRole = (...roles) => (req, res, next) => {
+  if (!req.user?.user_type) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  if (!roles.includes(req.user.user_type)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+};
+
+module.exports = { authMiddleware, requireRole };

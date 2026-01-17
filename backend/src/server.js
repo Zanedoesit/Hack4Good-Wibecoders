@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const activitiesRoutes = require('./routes/activities');
 const signupsRoutes = require('./routes/signups');
 const dashboardRoutes = require('./routes/dashboard');
+const individualsRoutes = require('./routes/individuals');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/auth', authRoutes);
 app.use('/activities', activitiesRoutes);
 app.use('/signups', signupsRoutes);
 app.use('/dashboard', dashboardRoutes);
+app.use('/individuals', individualsRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'MINDS Activity Signup API' });

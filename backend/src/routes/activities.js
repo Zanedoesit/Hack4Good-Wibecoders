@@ -1,18 +1,22 @@
 const express = require('express');
 const { pool } = require('../db');
-const authMiddleware = require('../middleware/auth');
+const { authMiddleware, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
 router.get('/', authMiddleware, async (req, res) => {
   try {
+    const caregiverId = req.user?.id || null;
     const result = await pool.query(
       `SELECT a.id, a.title, a.description, a.date, a.time, a.location, a.capacity,
-              COUNT(s.id) as signup_count
+              COUNT(DISTINCT s.id)::int as signup_count,
+              COUNT(DISTINCT sc.id)::int as caregiver_signup_count
        FROM activities a
        LEFT JOIN signups s ON a.id = s.activity_id
-       GROUP BY a.id
-       ORDER BY a.date ASC`
+       LEFT JOIN signups sc ON a.id = sc.activity_id AND sc.caregiver_id = $1
+       GROUP BY a.id, a.capacity
+       ORDER BY a.date ASC`,
+      [caregiverId]
     );
     const activities = result.rows.map(a => ({
       ...a,
@@ -24,7 +28,7 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, requireRole('staff'), async (req, res) => {
   const { title, description, date, time, location, capacity } = req.body;
   try {
     const result = await pool.query(
