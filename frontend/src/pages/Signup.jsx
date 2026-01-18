@@ -15,6 +15,7 @@ export default function Signup({ token }) {
   const [newName, setNewName] = useState('')
   const [newAge, setNewAge] = useState('')
   const [newNeeds, setNewNeeds] = useState('')
+  const [reviewMode, setReviewMode] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -95,6 +96,8 @@ export default function Signup({ token }) {
   if (loading) return <div className="container"><p>Loading...</p></div>
   if (!activity) return <div className="container"><p>Activity not found</p></div>
 
+  const selectedIndividuals = individuals.filter(ind => selected.includes(ind.id))
+
   return (
     <div className="container">
       <div className="card">
@@ -106,27 +109,66 @@ export default function Signup({ token }) {
       </div>
 
       <div className="card">
-        <h3>Select people to register:</h3>
-        {individuals.length === 0 ? (
-          <p>No individuals yet. Add one below.</p>
+        <h3>{reviewMode ? 'Review selection' : 'Select people to register:'}</h3>
+        {!reviewMode ? (
+          <>
+            {individuals.length === 0 ? (
+              <p>No individuals yet. Add one below.</p>
+            ) : (
+              individuals.map(ind => (
+                <label key={ind.id} style={{ display: 'flex', alignItems: 'center', margin: '12px 0' }}>
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(ind.id)}
+                    onChange={() => handleToggle(ind.id)}
+                    disabled={ind.already_registered}
+                    style={{ width: 'auto', marginRight: '8px' }}
+                  />
+                  <span style={{ marginRight: '8px' }}>{ind.name}</span>
+                  {ind.already_registered && <span className="badge badge-muted">Already registered</span>}
+                </label>
+              ))
+            )}
+            <button
+              onClick={() => setReviewMode(true)}
+              disabled={selected.length === 0 || activity.spots_left <= 0}
+              style={{ marginTop: '16px' }}
+            >
+              {activity.spots_left <= 0 ? 'Full' : 'Review Selected'}
+            </button>
+          </>
         ) : (
-          individuals.map(ind => (
-            <label key={ind.id} style={{ display: 'flex', alignItems: 'center', margin: '12px 0' }}>
-              <input
-                type="checkbox"
-                checked={selected.includes(ind.id)}
-                onChange={() => handleToggle(ind.id)}
-                disabled={ind.already_registered}
-                style={{ width: 'auto', marginRight: '8px' }}
-              />
-              <span style={{ marginRight: '8px' }}>{ind.name}</span>
-              {ind.already_registered && <span className="badge badge-muted">Already registered</span>}
-            </label>
-          ))
+          <>
+            {selectedIndividuals.length === 0 ? (
+              <p>No individuals selected.</p>
+            ) : (
+              selectedIndividuals.map(ind => (
+                <div key={ind.id} style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
+                  <strong>{ind.name}</strong>
+                  {ind.age !== null && ind.age !== undefined && (
+                    <span style={{ marginLeft: '8px', color: '#666' }}>Age {ind.age}</span>
+                  )}
+                  {ind.special_needs && (
+                    <div style={{ marginTop: '4px', color: '#555' }}>
+                      <span className="badge badge-muted">Conditions</span> {ind.special_needs}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+              <button type="button" onClick={() => setReviewMode(false)}>
+                Back to selection
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting || activity.spots_left <= 0 || selectedIndividuals.length === 0}
+              >
+                {submitting ? 'Registering...' : activity.spots_left <= 0 ? 'Full' : 'Confirm Registration'}
+              </button>
+            </div>
+          </>
         )}
-        <button onClick={handleSubmit} disabled={submitting || activity.spots_left <= 0} style={{ marginTop: '16px' }}>
-          {submitting ? 'Registering...' : activity.spots_left <= 0 ? 'Full' : 'Register Selected'}
-        </button>
       </div>
 
       <div className="card">

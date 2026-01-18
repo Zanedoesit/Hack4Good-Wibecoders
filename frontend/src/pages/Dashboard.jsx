@@ -6,21 +6,31 @@ const API_URL = 'http://localhost:5000'
 export default function Dashboard({ token }) {
   const [signups, setSignups] = useState([])
   const [loading, setLoading] = useState(true)
+  const [lastUpdated, setLastUpdated] = useState(null)
 
   useEffect(() => {
+    let isMounted = true
     const fetch = async () => {
       try {
         const res = await axios.get(`${API_URL}/dashboard/signups`, {
           headers: { Authorization: `Bearer ${token}` }
         })
-        setSignups(res.data)
-        setLoading(false)
+        if (isMounted) {
+          setSignups(res.data)
+          setLoading(false)
+          setLastUpdated(new Date())
+        }
       } catch (err) {
         console.error(err)
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
     fetch()
+    const intervalId = setInterval(fetch, 15000)
+    return () => {
+      isMounted = false
+      clearInterval(intervalId)
+    }
   }, [token])
 
   if (loading) return <div className="container"><p>Loading...</p></div>
@@ -28,6 +38,11 @@ export default function Dashboard({ token }) {
   return (
     <div className="container">
       <h2>Staff Dashboard - All Signups</h2>
+      {lastUpdated && (
+        <p style={{ color: '#666', marginBottom: '12px' }}>
+          Last updated: {lastUpdated.toLocaleTimeString()}
+        </p>
+      )}
       {signups.length === 0 ? (
         <p>No signups yet</p>
       ) : (
